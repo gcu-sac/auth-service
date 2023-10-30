@@ -2,6 +2,7 @@ plugins {
 	id 'org.springframework.boot' version '2.7.3'
 	id 'io.spring.dependency-management' version '1.0.13.RELEASE'
 	id 'java'
+	id 'com.google.cloud.tools.jib' version '3.3.1'
 }
 
 group = 'login'
@@ -27,11 +28,39 @@ dependencies {
 	implementation 'com.auth0:java-jwt:4.2.1'
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.h2database:h2'
+	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 	annotationProcessor 'org.projectlombok:lombok'
 	testCompileOnly 'org.projectlombok:lombok'
 	testAnnotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
+}
+
+jib {
+        from {
+                image = 'amazoncorretto:17-alpine-jdk'
+        }
+        to {
+                image = 'yhc0818/sac-auth'
+                tags = ['git rev-parse --verify --short HEAD'.execute().text.trim(), 'latest']
+        }
+        container {
+                ports = ["8080"]
+//              jvmFlags = ['-Dspring.profiles.active=prod', '-XX:+UseContainerSupport', '-Dserver.port=8080', '-Dfile.encoding=UTF-8', '-javaagent:/elastic-apm/elastic-apm-agent.jar', '-Delastic.apm.service_name=backend-server', '-Delastic.apm.server_url=http://apm-server-apm-server.elastic.svc.cluster.local:8200', '-Delastic.apm.secret_token=', '-Delastic.apm.environment=production', '-Delastic.apm.application_packages=com.poppin']
+                jvmFlags = [
+                        '-Dspring.profiles.active=prod',
+                        '-XX:+UseContainerSupport',
+                        '-Dserver.port=8080',
+                        '-Dfile.encoding=UTF-8',
+                        '-javaagent:/otel/opentelemetry-javaagent.jar',
+                        '-Dotel.exporter=otel',
+                        '-Dotel.service.name=backend-server',
+                        '-Dotel.exporter.otlp.endpoint=http://grafana-agent.tempo.svc.cluster.local:4317',
+                        '-Dotel.exporter.otlp.insecure=true',
+                        '-Dlogging.level.org.springframework.web.filter.CommonsRequestLoggingFilter=DEBUG',
+                        '-Dlogging.pattern.console=%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg traceID=%X{traceId} %n'
+                ]
+        }
 }
 
 tasks.named('test') {
