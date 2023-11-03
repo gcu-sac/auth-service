@@ -3,6 +3,7 @@ package login.oauthtest4.global.jwt.service;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import login.oauthtest4.domain.user.repository.UserRepository;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,8 @@ public class JwtService {
 
     @Value("${jwt.access.header}")
     private String accessHeader;
+
+
 
     @Value("${jwt.refresh.header}")
     private String refreshHeader;
@@ -92,6 +95,8 @@ public class JwtService {
 
         setAccessTokenHeader(response, accessToken);
         setRefreshTokenHeader(response, refreshToken);
+        //response.setHeader("jwt-auth-token", accessToken);
+
         log.info("Access Token, Refresh Token 헤더 설정 완료");
     }
 
@@ -133,7 +138,7 @@ public class JwtService {
                     .getClaim(EMAIL_CLAIM) // claim(Emial) 가져오기
                     .asString());
         } catch (Exception e) {
-            log.error("액세스 토큰이 유효하지 않습니다.");
+            log.error("액세스 토큰이 유효하지 않습니다.!!!");
             return Optional.empty();
         }
     }
