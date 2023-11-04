@@ -5,6 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 
+@Setter
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
@@ -60,6 +61,18 @@ public class User {
 
     public void updatePassword(String updatePassword, PasswordEncoder passwordEncoder) {
         this.password = passwordEncoder.encode(updatePassword);
+    }
+
+    public String getEmail() {
+        return email != null ? email : "정보없음";
+    }
+
+    public int getAge() {
+        return age != 0 ? age : -1; // 혹은 null로 반환하고자 할 경우 Integer를 사용할 수 있습니다.
+    }
+
+    public String getCity() {
+        return city != null ? city : "정보없음";
     }
 
     public void updateRefreshToken(String updateRefreshToken) {
