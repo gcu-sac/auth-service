@@ -22,6 +22,11 @@ public class UserController {
     private final JwtService jwtService;
     private final UserRepository userRepository;
 
+    @GetMapping("/api/auth/user/login")
+    public String redirectToGoogleAuthorization() {
+
+        return "redirect:/oauth2/authorization/google";
+    }
 
 
     @PostMapping("/sign-up")
