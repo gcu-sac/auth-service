@@ -1,3 +1,4 @@
+/*
 package login.oauthtest4.global.oauth2.userinfo;
 
 import java.util.Map;
@@ -37,3 +38,4 @@ public class KakaoOAuth2UserInfo extends OAuth2UserInfo {
         return (String) profile.get("thumbnail_image_url");
     }
 }
+*/

@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.util.Optional;
 
 @Slf4j
 @Component
@@ -24,6 +25,7 @@ import java.io.IOException;
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtService jwtService;
+    private final UserRepository userRepository;
 //    private final UserRepository userRepository;
 
     @Override
@@ -35,7 +37,15 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
             // User의 Role이 GUEST일 경우 처음 요청한 회원이므로 회원가입 페이지로 리다이렉트
             if(oAuth2User.getRole() == Role.GUEST) {
                 String accessToken = jwtService.createAccessToken(oAuth2User.getEmail());
+                System.out.println("Email:::::::"+oAuth2User.getEmail());
                 System.out.println(accessToken);
+
+                Optional<User> optionalUser = userRepository.findByEmail(oAuth2User.getEmail());
+                if (optionalUser.isPresent()) {
+                    User existingUser = optionalUser.get();
+                    existingUser.setAccessToken("Bearer " +accessToken);
+                    userRepository.save(existingUser);
+                }
                 response.addHeader(jwtService.getAccessHeader(), "Bearer " + accessToken);
                 response.sendRedirect("oauth2/sign-up"); // 프론트의 회원가입 추가 정보 입력 폼으로 리다이렉트
 

@@ -1,3 +1,4 @@
+/*
 package login.oauthtest4.global.oauth2.userinfo;
 
 import org.springframework.security.core.parameters.P;
@@ -42,3 +43,4 @@ public class NaverOAuth2UserInfo extends OAuth2UserInfo {
         return (String) response.get("profile_image");
     }
 }
+*/

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -104,7 +105,7 @@ public class UserController {
             User user = userOptional2.get();
 
             String nickname = user.getNickname();
-            String userEmail2 = user.getEmail();
+            String userEmail2 = user.getRealEmail();
             int userAge = user.getAge();
             String userCity = user.getCity();
 
@@ -152,6 +153,26 @@ public class UserController {
             return new ResponseEntity<>("사용자 정보가 성공적으로 수정되었습니다", HttpStatus.OK);
         } else {
             return new ResponseEntity<>("해당 ID의 사용자를 찾을 수 없습니다", HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+
+    @PostMapping("/api/auth/user/requestToken")
+    public ResponseEntity<String> getAccessToken(@RequestBody Map<String, String> requestBody) {
+        // email을 기반으로 사용자를 DB에서 찾기
+        String realEmail = requestBody.get("realEmail");
+        Optional<User> userOptional = userRepository.findByRealEmail(realEmail);
+        System.out.println("realEmail:@@@@@@@"+realEmail);
+
+        if (userOptional.isPresent()) {
+            User requestUser = userOptional.get();
+            String accessToken = requestUser.getAccessToken(); // 사용자의 access token 가져오기
+            System.out.println("@@@@@@@@@@@@@@@"+accessToken);
+            // access token을 헤더에 실어 응답
+            return ResponseEntity.ok().header("Authorization", accessToken).body("Access token sent successfully");
+        } else {
+            return ResponseEntity.badRequest().body("User not found");
         }
     }
 
