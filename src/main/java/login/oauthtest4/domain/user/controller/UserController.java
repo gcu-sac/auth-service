@@ -21,7 +21,7 @@ public class UserController {
     private final UserService userService;
     private final JwtService jwtService;
     private final UserRepository userRepository;
-    private final UserUpdateDto userUpdateDto;
+
 
 
     @PostMapping("/sign-up")
@@ -61,7 +61,7 @@ public class UserController {
 
     }
 
-    @GetMapping("api/auth/user/{nickname}")
+    @GetMapping("api/auth/user/nickname/{nickname}")
     public ResponseEntity<Object> getUserByNickname(@PathVariable String nickname) {
         Optional<User> userOptional = userRepository.findByNickname(nickname);
 
@@ -91,16 +91,65 @@ public class UserController {
         }
     }
 
-    //@PostMapping("/api/auth/user")
-    @PutMapping("/api/auth/user/{nickname}")
-    public ResponseEntity<Object> updateUserDetails(@PathVariable Long userId, @RequestBody UserUpdateDto userUpdateDto) {
-        try {
-            userService.updateUserDetails(userId, userUpdateDto);
-            return new ResponseEntity<>("User details updated successfully", HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>("Failed to update user details", HttpStatus.BAD_REQUEST);
+    @GetMapping("api/auth/user/id/{user_id}")
+    public ResponseEntity<Object> getUserById(@PathVariable Long user_id) {
+        Optional<User> userOptional2 = userRepository.findById(user_id);
+
+        if (userOptional2.isPresent()) {
+            User user = userOptional2.get();
+
+            String nickname = user.getNickname();
+            String userEmail2 = user.getEmail();
+            int userAge = user.getAge();
+            String userCity = user.getCity();
+
+
+            if (userEmail2 != null && userAge != 0 && userCity != null) {
+                String userInfo = "닉네임: " + nickname + ", 이메일: " + userEmail2 + ", 나이: " + userAge + ", 도시: " + userCity;
+                return new ResponseEntity<>(userInfo, HttpStatus.OK);
+            } else {
+                // 사용자 정보 중 하나라도 null이면 해당 정보가 없다고 알림
+                StringBuilder message = new StringBuilder("해당 사용자의");
+                if (userEmail2 == null) message.append(" 이메일");
+                if (userAge == 0) message.append(" 나이");
+                if (userCity == null) message.append(" 도시");
+                message.append(" 정보가 등록되어 있지 않습니다");
+
+                return new ResponseEntity<>(message.toString(), HttpStatus.NOT_FOUND);
+            }
+        } else {
+            return new ResponseEntity<>("사용자를 찾을 수 없습니다", HttpStatus.NOT_FOUND);
         }
     }
+
+
+    @PutMapping("/api/auth/user/edit/id/{userId}")
+    public ResponseEntity<Object> updateUser(@PathVariable Long userId, @RequestBody UserUpdateDto userUpdateDto) {
+        Optional<User> userOptional = userRepository.findById(userId);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            // Update user information based on UserUpdateDto
+            if (userUpdateDto.getEmail() != null) {
+                user.setEmail(userUpdateDto.getEmail());
+            }
+            if (userUpdateDto.getAge() != 0) {
+                user.setAge(userUpdateDto.getAge());
+            }
+            if (userUpdateDto.getCity() != null) {
+                user.setCity(userUpdateDto.getCity());
+            }
+
+            // Save the updated user
+            userRepository.save(user);
+
+            return new ResponseEntity<>("사용자 정보가 성공적으로 수정되었습니다", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("해당 ID의 사용자를 찾을 수 없습니다", HttpStatus.NOT_FOUND);
+        }
+    }
+
 
 
 }

@@ -3,7 +3,9 @@ package login.oauthtest4.domain.user.dto;
 // UserUpdateDto.java
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 
 @Getter
 @Setter
