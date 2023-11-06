@@ -74,7 +74,7 @@ public class UserController {
         if (userOptional.isPresent()) {
             User user = userOptional.get();
 
-            String userEmail = user.getEmail();
+            String userEmail = user.getRealEmail();
             int userAge = user.getAge();
             String userCity = user.getCity();
 
@@ -86,6 +86,37 @@ public class UserController {
                 // 사용자 정보 중 하나라도 null이면 해당 정보가 없다고 알림
                 StringBuilder message = new StringBuilder("해당 사용자의");
                 if (userEmail == null) message.append(" 이메일");
+                if (userAge == 0) message.append(" 나이");
+                if (userCity == null) message.append(" 도시");
+                message.append(" 정보가 등록되어 있지 않습니다");
+
+                return new ResponseEntity<>(message.toString(), HttpStatus.NOT_FOUND);
+            }
+        } else {
+            return new ResponseEntity<>("사용자를 찾을 수 없습니다", HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("api/auth/user/id/{real_email}")
+    public ResponseEntity<Object> getUserById(@PathVariable String real_email) {
+        Optional<User> userOptional3 = userRepository.findByRealEmail(real_email);
+
+        if (userOptional3.isPresent()) {
+            User user = userOptional3.get();
+
+            String nickname = user.getNickname();
+            String userEmail2 = user.getRealEmail();
+            int userAge = user.getAge();
+            String userCity = user.getCity();
+
+
+            if (userEmail2 != null && userAge != 0 && userCity != null) {
+                String userInfo = "닉네임: " + nickname + ", 이메일: " + userEmail2 + ", 나이: " + userAge + ", 도시: " + userCity;
+                return new ResponseEntity<>(userInfo, HttpStatus.OK);
+            } else {
+                // 사용자 정보 중 하나라도 null이면 해당 정보가 없다고 알림
+                StringBuilder message = new StringBuilder("해당 사용자의");
+                if (userEmail2 == null) message.append(" 이메일");
                 if (userAge == 0) message.append(" 나이");
                 if (userCity == null) message.append(" 도시");
                 message.append(" 정보가 등록되어 있지 않습니다");
