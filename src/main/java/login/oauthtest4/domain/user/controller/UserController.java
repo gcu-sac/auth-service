@@ -97,7 +97,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("api/auth/user/id/{real_email}")
+    @GetMapping("api/auth/user/email/{real_email}")
     public ResponseEntity<Object> getUserById(@PathVariable String real_email) {
         Optional<User> userOptional3 = userRepository.findByRealEmail(real_email);
 
