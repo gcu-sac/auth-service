@@ -6,24 +6,18 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-    hikari:
-      auto-commit: false
-      connection-test-query: SELECT 1
-      minimum-idle: 10
-      maximum-pool-size: 20
-      pool-name: auth-pool
+    url: jdbc:mysql://auth-db-svc.auth-service.svc.cluster.local:3306/sac?useSSL=false&serverTimezone=UTC
+    username: root
+    password: 1234
 
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     properties:
       hibernate:
         format_sql: true
-        hbm2ddl.auto: none
-    open-in-view: false
-    show-sql: true
+        show-sql: true
+    hibernate:
+      ddl-auto: update
 
   servlet:
     multipart:
