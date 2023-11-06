@@ -57,7 +57,7 @@ jib {
                         '-Dfile.encoding=UTF-8',
                         '-javaagent:/otel/opentelemetry-javaagent.jar',
                         '-Dotel.exporter=otel',
-                        '-Dotel.service.name=backend-server',
+                        '-Dotel.service.name=auth-service',
                         '-Dotel.exporter.otlp.endpoint=http://grafana-agent.tempo.svc.cluster.local:4317',
                         '-Dotel.exporter.otlp.insecure=true',
                         '-Dlogging.level.org.springframework.web.filter.CommonsRequestLoggingFilter=DEBUG',
