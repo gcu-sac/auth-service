@@ -5,6 +5,7 @@ import java.util.Optional;
 
 
 import com.example.justJwt.jwt.domain.User;
+import com.example.justJwt.jwt.dto.GetUserResponseDto;
 import com.example.justJwt.jwt.dto.UserSignUpDto;
 import com.example.justJwt.jwt.repository.UserRepository;
 import com.example.justJwt.jwt.service.JwtServiceImpl;
@@ -82,13 +83,13 @@ public class UserController {
 
 
     @PostMapping("/user/signup")
-    public ResponseEntity<String> registerUser(@RequestBody User user) {
+    public ResponseEntity<Object> registerUser(@RequestBody User user) {
 
         System.out.println("asdasddasdsaswwwwwwwwwwwwwwwwwwwwwwwwww");
 
         Optional<User> existingUser = userRepository.findById(user.getId());
 
-        System.out.println("asdasddasdsas"+user.getId());
+        System.out.println("asdasddasdsas" + user.getId());
 
         if (existingUser.isPresent()) {
             return ResponseEntity.badRequest().body("Id already exists");
@@ -96,41 +97,45 @@ public class UserController {
 
         //HttpServletResponse response=null;
 
-        String token = jwtService.createToken(user); // 사용자 정보로 토큰 생성
+        //String token = jwtService.createToken(user); // 사용자 정보로 토큰 생성
 
         //response.setHeader("jwt-auth-token", token); // client에 token 전달
-        user.setAccessToken(token);
+        //user.setAccessToken(token);
         userRepository.save(user);
-        return ResponseEntity.ok().header("jwt-auth-token",token).body("Set Token");
+        return new ResponseEntity<Object>("Sign-Up Success", HttpStatus.OK);
     }
 
-    @PostMapping("user/login") // 로그인, 토큰이 필요하지 않는 경로
-    public ResponseEntity<Object> login(@RequestBody User user) {
+    @PostMapping("/user/login") // 로그인, 토큰이 필요하지 않는 경로
+    public ResponseEntity<String> login(@RequestBody User user) {
         try {
             Optional<User> DBUser = userRepository.findById(user.getId());
 
-            User user2=null;
+            User user2 = null;
 
             if (DBUser.isPresent()) {
                 user2 = DBUser.get();
 
             }
 
+            if (user2.getId().equals(user.getId()) && user2.getPassword().equals(user.getPassword())) { // 유효한 사용자일 경우
+                String token = jwtService.createToken(user); // 사용자 정보로 토큰 생성
 
-            if(user2.getId().equals(user.getId()) && user2.getPassword().equals(user.getPassword())) { // 유효한 사용자일 경우
-                /*String token = jwtService.createToken(user); // 사용자 정보로 토큰 생성
-                response.setHeader("jwt-auth-token", token); // client에 token 전달*/
-                return new ResponseEntity<Object>("login Success", HttpStatus.OK);
+                user2.setAccessToken(token);
+                userRepository.save(user2);
+
+                return ResponseEntity.ok().header("jwt-auth-token", token).body("Set Token");
             } else {
-                return new ResponseEntity<Object>("login Fail", HttpStatus.OK);
+                return ResponseEntity.badRequest().body("User not found");
             }
-        } catch(Exception e) {
-            return new ResponseEntity<Object>(null, HttpStatus.CONFLICT);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("User not found");
         }
     }
 
+
+
     @GetMapping("/user/id/{user_id}")
-    public ResponseEntity<Object> getUserById(@PathVariable String user_id) {
+    public ResponseEntity<GetUserResponseDto > getUserById(@PathVariable String user_id) throws Exception {
         Optional<User> userOptional2 = userRepository.findById(user_id);
 
         if (userOptional2.isPresent()) {
@@ -141,18 +146,23 @@ public class UserController {
 
             if (userEmail2 != null && nickname != null) {
                 String userInfo = "nickname: " + nickname + ", email: " + userEmail2 ;
-                return new ResponseEntity<>(userInfo, HttpStatus.OK);
+                GetUserResponseDto result = GetUserResponseDto.builder()
+                        .id(user.getId())
+                        .email(user.getEmail())
+                        .nickname(user.getNickname())
+                        .build();
+                return ResponseEntity.ok().body(result);
+//                return new ResponseEntity<>(userInfo, HttpStatus.OK);
             } else {
                 // 사용자 정보 중 하나라도 null이면 해당 정보가 없다고 알림
                 StringBuilder message = new StringBuilder("해당 사용자의");
                 if (userEmail2 == null) message.append(" 이메일");
                 if (nickname == null) message.append(" 닉네임");
                 message.append(" 정보가 등록되어 있지 않습니다");
-
-                return new ResponseEntity<>(message.toString(), HttpStatus.NOT_FOUND);
+                throw new Exception(message.toString());
             }
         } else {
-            return new ResponseEntity<>("사용자를 찾을 수 없습니다", HttpStatus.NOT_FOUND);
+            throw new Exception("사용자를 찾을 수 없습니다");
         }
     }
 
