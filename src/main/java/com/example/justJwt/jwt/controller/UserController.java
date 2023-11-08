@@ -53,16 +53,16 @@ public class UserController {
             if (user.isPresent()) {
                 // 사용자 정보를 찾은 경우 - 토큰이 유효
                 System.out.println("토큰이 유효합니다");
-                return new ResponseEntity<>("토큰이 유효합니다", HttpStatus.OK);
+                return new ResponseEntity<>("Token Success", HttpStatus.OK);
             } else {
                 // 사용자 정보를 찾지 못한 경우 - 토큰이 유효하지 않음
                 System.out.println("토큰이 유효하지 않습니다");
-                return new ResponseEntity<>("토큰이 유효하지 않습니다", HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>("Token Fail", HttpStatus.UNAUTHORIZED);
             }
         } else {
             // 헤더에 토큰이 없는 경우
             System.out.println("토큰이 없습니다");
-            return new ResponseEntity<>("토큰이 없습니다", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>("Token Fail", HttpStatus.UNAUTHORIZED);
         }
 
     }
@@ -85,11 +85,11 @@ public class UserController {
     @PostMapping("/user/signup")
     public ResponseEntity<Object> registerUser(@RequestBody User user) {
 
-        System.out.println("asdasddasdsaswwwwwwwwwwwwwwwwwwwwwwwwww");
+
 
         Optional<User> existingUser = userRepository.findById(user.getId());
 
-        System.out.println("asdasddasdsas" + user.getId());
+
 
         if (existingUser.isPresent()) {
             return ResponseEntity.badRequest().body("Id already exists");
@@ -155,14 +155,14 @@ public class UserController {
 //                return new ResponseEntity<>(userInfo, HttpStatus.OK);
             } else {
                 // 사용자 정보 중 하나라도 null이면 해당 정보가 없다고 알림
-                StringBuilder message = new StringBuilder("해당 사용자의");
-                if (userEmail2 == null) message.append(" 이메일");
-                if (nickname == null) message.append(" 닉네임");
-                message.append(" 정보가 등록되어 있지 않습니다");
+                StringBuilder message = new StringBuilder("User's");
+                if (userEmail2 == null) message.append(" email");
+                if (nickname == null) message.append(" nickname");
+                message.append(" no information");
                 throw new Exception(message.toString());
             }
         } else {
-            throw new Exception("사용자를 찾을 수 없습니다");
+            throw new Exception("Can't find user");
         }
     }
 
@@ -184,9 +184,9 @@ public class UserController {
             // Save the updated user
             userRepository.save(user2);
 
-            return new ResponseEntity<>("사용자 정보가 성공적으로 수정되었습니다", HttpStatus.OK);
+            return new ResponseEntity<>("Edit Success", HttpStatus.OK);
         } else {
-            return new ResponseEntity<>("해당 ID의 사용자를 찾을 수 없습니다", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>("Can't find user", HttpStatus.NOT_FOUND);
         }
     }
 }
