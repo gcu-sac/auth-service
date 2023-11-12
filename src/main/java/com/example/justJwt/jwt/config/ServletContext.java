@@ -25,7 +25,7 @@ public class ServletContext implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) { // client에서 header추출이 가능하도록 하기 위해 등록
         registry.addMapping("/**")
-                .allowedOrigins("*")
+                .allowedOrigins("http://localhost:3000", "https://sac.prod.cluster.yanychoi.com")
                 .allowedMethods("*")
                 .allowedHeaders("*")
                 .exposedHeaders("jwt-auth-token");
