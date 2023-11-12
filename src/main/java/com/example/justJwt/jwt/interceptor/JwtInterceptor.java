@@ -28,15 +28,15 @@ public class JwtInterceptor implements HandlerInterceptor {
             return true;
         }
         else {
-            String token = request.getHeader("jwt-auth-token"); // 헤더에서 토큰 받아옴
-            String cookieToken = Objects.requireNonNull(WebUtils.getCookie(request, "jwtAuthToken")).getValue();
 
-            if (cookieToken != null && cookieToken.length() > 0) {
-                jwtService.checkValid(cookieToken); // 토큰 유효성 검증
+            String token = request.getHeader("jwt-auth-token"); // 헤더에서 토큰 받아옴
+            if (token != null && token.length() > 0) {
+                jwtService.checkValid(token); // 토큰 유효성 검증
                 return true;
             }
-            else if (token != null && token.length() > 0) {
-                jwtService.checkValid(token); // 토큰 유효성 검증
+            String cookieToken = Objects.requireNonNull(WebUtils.getCookie(request, "jwtAuthToken")).getValue();
+            if (cookieToken != null && cookieToken.length() > 0) {
+                jwtService.checkValid(cookieToken); // 토큰 유효성 검증
                 return true;
             }
             else { // 유효한 인증토큰이 아닐 경우

@@ -12,6 +12,7 @@ import com.example.justJwt.jwt.service.JwtServiceImpl;
 import com.example.justJwt.jwt.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -44,7 +45,6 @@ public class UserController {
     public ResponseEntity<Object> authTest(HttpServletRequest request) {
 
         String token = request.getHeader("jwt-auth-token");
-
 
         if (token != null) {
             // DB에서 해당 토큰 값으로 사용자 정보를 확인하거나 검색
@@ -110,6 +110,7 @@ public class UserController {
         return new ResponseEntity<Object>("Sign-Up Success", HttpStatus.OK);
     }
 
+    @Transactional
     @PostMapping("/user/login") // 로그인, 토큰이 필요하지 않는 경로
     public ResponseEntity<String> login(@RequestBody User user) {
         try {
@@ -123,7 +124,7 @@ public class UserController {
             }
 
             if (user2.getId().equals(user.getId()) && user2.getPassword().equals(user.getPassword())) { // 유효한 사용자일 경우
-                String token = jwtService.createToken(user); // 사용자 정보로 토큰 생성
+                String token = jwtService.createToken(user2); // 사용자 정보로 토큰 생성
 
                 user2.setAccessToken(token);
                 userRepository.save(user2);
