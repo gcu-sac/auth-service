@@ -67,17 +67,22 @@ public class UserController {
 
     }
 
-    @GetMapping("/getUser") // 토큰에 담겨있는 사용자 정보를 리턴, 토큰이 필요한 경로
-    public ResponseEntity<Object> getUser(HttpServletRequest request) {
+    @GetMapping("/") // 토큰에 담겨있는 사용자 정보를 리턴, 토큰이 필요한 경로
+    public ResponseEntity<GetUserResponseDto> getUser(@CookieValue String jwtAuthToken) {
         try {
-            String token = request.getHeader("jwt-auth-token");
-            Map<String, Object> tokenInfoMap = jwtService.getInfo(token);
+            String userId = jwtService.getId(jwtAuthToken);
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new IllegalArgumentException("No user with ID."));
+            GetUserResponseDto userDto = GetUserResponseDto.builder()
+                    .id(user.getId())
+                    .nickname(user.getNickname())
+                    .email(user.getEmail())
+                    .build();
+//            User user = new ObjectMapper().convertValue(tokenInfoMap.get("user"), User.class);
 
-            User user = new ObjectMapper().convertValue(tokenInfoMap.get("user"), User.class);
-
-            return new ResponseEntity<Object>(user, HttpStatus.OK);
+            return new ResponseEntity<>(userDto, HttpStatus.OK);
         } catch(Exception e) {
-            return new ResponseEntity<Object>(null, HttpStatus.CONFLICT);
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
     }
 

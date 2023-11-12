@@ -1,6 +1,7 @@
 package com.example.justJwt.jwt.service;
 
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.example.justJwt.jwt.domain.User;
@@ -47,6 +48,18 @@ public class JwtServiceImpl {
         }
 
         return claims.getBody();
+    }
+
+    public String getId(String token) throws Exception {
+        try {
+            Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey.getBytes()).parseClaimsJws(token); // secretKey를 사용하여 복호화
+            String id = claims.getBody().get("user", LinkedHashMap.class).get("id").toString();
+            return id;
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+            throw e;
+        }
     }
 
     // interceptor에서 토큰 유효성을 검증하기 위한 메서드
